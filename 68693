@@ -1,0 +1,125 @@
+"""
+Project: Dataset Management and Basic Analysis System
+Author: (Olayiwola Olamide Scott)
+"""
+
+# ==============================
+# OOP CLASS DEFINITION
+# ==============================
+
+class DataSet:
+    def __init__(self, numeric_file, category_file):
+        self.numeric_file = numeric_file
+        self.category_file = category_file
+        self.data = []
+        self.categories = set()
+        self.total = 0
+        self.average = 0
+        self.minimum = None
+        self.maximum = None
+
+    # ==============================
+    # FILE LOADING WITH ERROR HANDLING
+    # ==============================
+    def load_data(self):
+        try:
+            with open(self.numeric_file, "r") as file:
+                lines = file.readlines()
+
+                if not lines:
+                    raise ValueError("Numeric data file is empty.")
+
+                for line in lines:
+                    value = float(line.strip())
+                    self.data.append(value)
+
+        except FileNotFoundError:
+            print("Error: Numeric data file not found.")
+            return False
+
+        except ValueError:
+            print("Error: File contains invalid (non-numeric) data.")
+            return False
+
+        # Load categorical data
+        try:
+            with open(self.category_file, "r") as file:
+                for line in file:
+                    self.categories.add(line.strip())
+
+        except FileNotFoundError:
+            print("Error: Category file not found.")
+            return False
+
+        return True
+
+    # ==============================
+    # STATISTICAL FUNCTIONS
+    # ==============================
+    def calculate_statistics(self):
+        count = 0
+        self.minimum = self.data[0]
+        self.maximum = self.data[0]
+
+        for value in self.data:
+            self.total += value
+            count += 1
+
+            if value < self.minimum:
+                self.minimum = value
+
+            if value > self.maximum:
+                self.maximum = value
+
+        self.average = self.total / count
+
+    # ==============================
+    # DISPLAY RESULTS
+    # ==============================
+    def display_results(self):
+        print("\n===== DATASET ANALYSIS REPORT =====")
+        print(f"Total: {self.total}")
+        print(f"Average: {self.average:.2f}")
+        print(f"Minimum: {self.minimum}")
+        print(f"Maximum: {self.maximum}")
+        print(f"Unique Categories: {len(self.categories)}")
+
+        if self.average >= 70:
+            print("Performance Status: High Performance")
+        else:
+            print("Performance Status: Needs Improvement")
+
+    # ==============================
+    # SAVE RESULTS TO FILE
+    # ==============================
+    def save_report(self, filename="report.txt"):
+        with open(filename, "w") as file:
+            file.write("DATASET ANALYSIS REPORT\n")
+            file.write("========================\n")
+            file.write(f"Total: {self.total}\n")
+            file.write(f"Average: {self.average:.2f}\n")
+            file.write(f"Minimum: {self.minimum}\n")
+            file.write(f"Maximum: {self.maximum}\n")
+            file.write(f"Unique Categories: {len(self.categories)}\n")
+
+            if self.average >= 70:
+                file.write("Performance Status: High Performance\n")
+            else:
+                file.write("Performance Status: Needs Improvement\n")
+
+
+# ==============================
+# PROGRAM ENTRY POINT
+# ==============================
+
+if __name__ == "__main__":
+    dataset = DataSet(
+        numeric_file="data/numeric_data.txt",
+        category_file="data/categories.txt"
+    )
+
+    if dataset.load_data():
+        dataset.calculate_statistics()
+        dataset.display_results()
+        dataset.save_report()
+        print("\nReport saved successfully to report.txt")
